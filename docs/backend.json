@@ -1,0 +1,205 @@
+
+{
+  "entities": {
+    "Building": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Building",
+      "type": "object",
+      "description": "Represents a building on the BatStateU Alangilan campus.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the building."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the building (e.g., Administration Building)."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "MonthlyUsageData": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MonthlyUsageData",
+      "type": "object",
+      "description": "Represents the monthly electricity, water, and waste usage data for a specific building.",
+      "properties": {
+        "buildingId": {
+          "type": "string",
+          "description": "Reference to Building."
+        },
+        "month": {
+          "type": "string",
+          "description": "The month for which the data is recorded (e.g., '2024-01').",
+          "format": "string"
+        },
+        "electricityUsage": {
+          "type": "number",
+          "description": "Electricity consumption in kWh."
+        },
+        "waterUsage": {
+          "type": "number",
+          "description": "Water consumption in cubic meters."
+        },
+        "wasteGenerated": {
+          "type": "number",
+          "description": "Waste generated in kilograms."
+        },
+        "submittedBy": {
+            "type": "string",
+            "description": "UID of the user who submitted the data."
+        },
+        "submittedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when the data was submitted."
+        },
+        "approved": {
+          "type": "boolean",
+          "description": "Whether the data has been approved by a Campus Admin."
+        }
+      },
+      "required": [
+        "buildingId",
+        "month",
+        "electricityUsage",
+        "waterUsage",
+        "wasteGenerated",
+        "submittedBy",
+        "submittedAt"
+      ]
+    },
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the EcoTrack Alangilan application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user (matches Firebase Auth UID)."
+        },
+        "username": {
+          "type": "string",
+          "description": "Username for display."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        }
+      },
+      "required": [
+        "id",
+        "email"
+      ]
+    },
+    "ActivityLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ActivityLog",
+      "type": "object",
+      "description": "Represents a log of user activity.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the log entry."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who performed the action."
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "The email of the user who performed the action."
+        },
+        "action": {
+          "type": "string",
+          "description": "The action performed (e.g., 'data_submitted', 'data_modified')."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The time the action was performed."
+        },
+        "details": {
+          "type": "object",
+          "description": "Details about the action.",
+          "properties": {
+            "buildingId": {
+              "type": "string"
+            },
+            "month": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "action",
+        "timestamp"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/monthlyUsageData/{usageId}",
+        "definition": {
+          "entityName": "MonthlyUsageData",
+          "schema": {
+            "$ref": "#/backend/entities/MonthlyUsageData"
+          },
+          "description": "Collection of all monthly usage data entries for all buildings.",
+          "params": [
+            {
+              "name": "usageId",
+              "description": "The unique identifier for the usage data, typically {buildingId}_{YYYY-MM}."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Collection of user accounts. Accessible to the user themselves and admins.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (equal to the Firebase Auth UID)."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/activityLogs/{logId}",
+        "definition": {
+          "entityName": "ActivityLog",
+          "schema": {
+            "$ref": "#/backend/entities/ActivityLog"
+          },
+          "description": "Collection of user activity logs.",
+          "params": [
+            {
+              "name": "logId",
+              "description": "The unique identifier for the log entry."
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
